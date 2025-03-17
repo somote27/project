@@ -1,0 +1,125 @@
+/* 背景画像を画面いっぱいに設定 */
+body {
+    background-image: url('image.jpg');
+    background-size: cover;  /* 画像が画面全体にフィットするように */
+    background-position: center; /* 画像の中心を表示 */
+    background-attachment: fixed; /* スクロールしても画像が動かない */
+    color: white; /* 文字を白色に */
+    height: 100vh; /* 高さを画面いっぱいに */
+    margin: 0; /* 余白をなくす */
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* タイトルのスタイル */
+h1 {
+    font-size: 3em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* 文字の読みやすさを向上 */
+    margin-bottom: 10px; /* タイトルと段落の間に余白を追加 */
+}
+
+/* 段落のスタイル */
+p {
+    font-size: 1.5em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* 文字の読みやすさを向上 */
+}
+
+/* リンクのスタイル */
+a {
+    color: #1e90ff; /* 青色 */
+    text-decoration: none; /* 下線なし */
+}
+
+a:hover {
+    color: #ff6347; /* 赤に変わる */
+}
+
+/* フォームの基本的なスタイル */
+form {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0;
+    width: 80%;
+    max-width: 500px;  /* フォームの最大幅 */
+    background-color: rgba(255, 255, 255, 0.8); /* 半透明の背景 */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    align-items: center; /* ボタンを中央寄せにする */
+}
+
+/* ラベルのスタイル */
+label {
+    font-size: 1.2em;
+    margin-bottom: 8px;
+}
+
+/* 入力フィールドのスタイル */
+input[type="text"],
+input[type="email"],
+textarea {
+    padding: 10px;
+    font-size: 1em;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%; /* 入力フィールドを広げる */
+    transition: border-color 0.3s ease; /* 枠線の色がスムーズに変化 */
+}
+
+/* 入力フィールドがフォーカスされたとき */
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus {
+    border-color: #4CAF50; /* フォーカス時に緑色の枠を表示 */
+    outline: none; /* フォーカス時のデフォルトのアウトラインを消す */
+}
+
+/* 送信ボタンのスタイル */
+input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%; /* ボタンを横いっぱいに */
+    transition: background-color 0.3s ease; /* 色がスムーズに変化 */
+}
+
+input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* フォーム送信後のメッセージ */
+.success-message {
+    color: green;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.error-message {
+    color: red;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+/* モバイル用レスポンシブデザイン */
+@media only screen and (max-width: 768px) {
+    body {
+        font-size: 16px; /* フォントサイズを調整 */
+    }
+    h1 {
+        font-size: 2em; /* 見出しを少し小さく */
+    }
+    p {
+        font-size: 1.2em; /* 段落を少し小さく */
+    }
+    form {
+        width: 90%; /* フォームを画面幅にフィットさせる */
+    }
+}
+
