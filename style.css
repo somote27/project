@@ -2,7 +2,7 @@
 body {
     background-image: url('image.jpg');
     background-size: cover;  /* 画像が画面全体にフィットするように */
-    background-position: center; /* 画像の中心を表示 */
+    background-position: top center; /* 画像の中心を上部に寄せる */
     background-attachment: fixed; /* スクロールしても画像が動かない */
     color: white; /* 文字を白色に */
     height: 100vh; /* 高さを画面いっぱいに */
@@ -14,27 +14,67 @@ body {
     align-items: center;
 }
 
-/* タイトルのスタイル */
-h1 {
+/* 通常のコンテンツのスタイル */
+.content {
+    padding: 20px;
+    background-color: #f4f4f4;
+    margin-bottom: 20px;
+}
+
+/* パララックス効果を適用したセクション */
+.parallax {
+    background-image: url('your-image.jpg');  /* ここに背景画像を指定 */
+    background-attachment: fixed; /* スクロール時に背景画像が動かない */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100vh; /* 画面全体に広げる */
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+/* パララックスセクション内のテキスト */
+.parallax h1 {
+    padding-top: 40vh; /* 見出しを中央寄せ */
     font-size: 3em;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* 文字の読みやすさを向上 */
-    margin-bottom: 10px; /* タイトルと段落の間に余白を追加 */
 }
 
-/* 段落のスタイル */
-p {
-    font-size: 1.5em;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* 文字の読みやすさを向上 */
+/* ナビゲーションバーのスタイル */
+nav {
+    background-color: rgba(0, 0, 0, 0.7); /* 半透明の黒背景 */
+    width: 100%;
+    padding: 10px 0;
+    position: fixed; /* 固定してスクロールしない */
+    top: 0;
+    left: 0;
+    z-index: 1000; /* 他の要素の上に表示 */
 }
 
-/* リンクのスタイル */
-a {
-    color: #1e90ff; /* 青色 */
-    text-decoration: none; /* 下線なし */
+/* ナビゲーションリンクのスタイル */
+nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
-a:hover {
-    color: #ff6347; /* 赤に変わる */
+nav ul li {
+    margin: 0 20px;
+}
+
+nav a {
+    color: white;
+    font-size: 1.2em;
+    text-decoration: none;
+}
+
+nav a:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* 背景を少し明るく */
+    border-radius: 5px; /* 角を丸める */
+    padding: 5px 10px; /* ちょっとした余白を追加 */
 }
 
 /* フォームの基本的なスタイル */
@@ -44,7 +84,7 @@ form {
     margin: 20px 0;
     width: 80%;
     max-width: 500px;  /* フォームの最大幅 */
-    background-color: rgba(255, 255, 255, 0.8); /* 半透明の背景 */
+    background-color: rgba(255, 255, 255, 0.9); /* 半透明の背景、少し不透明度を高く */
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -55,6 +95,7 @@ form {
 label {
     font-size: 1.2em;
     margin-bottom: 8px;
+    color: #333; /* ラベルの文字色を濃くして読みやすく */
 }
 
 /* 入力フィールドのスタイル */
@@ -68,6 +109,8 @@ textarea {
     border-radius: 5px;
     width: 100%; /* 入力フィールドを広げる */
     transition: border-color 0.3s ease; /* 枠線の色がスムーズに変化 */
+    background-color: #fff; /* 背景色を白にして文字が見やすく */
+    color: #333; /* 文字色を濃くして視認性を向上 */
 }
 
 /* 入力フィールドがフォーカスされたとき */
@@ -76,6 +119,7 @@ input[type="email"]:focus,
 textarea:focus {
     border-color: #4CAF50; /* フォーカス時に緑色の枠を表示 */
     outline: none; /* フォーカス時のデフォルトのアウトラインを消す */
+    box-shadow: 0 0 5px rgba(72, 182, 72, 0.7); /* フォーカス時に緑色の光を追加 */
 }
 
 /* 送信ボタンのスタイル */
@@ -90,8 +134,10 @@ input[type="submit"] {
     transition: background-color 0.3s ease; /* 色がスムーズに変化 */
 }
 
+/* 送信ボタンのホバー時のエフェクト */
 input[type="submit"]:hover {
     background-color: #45a049;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 影を追加 */
 }
 
 /* フォーム送信後のメッセージ */
@@ -118,8 +164,44 @@ input[type="submit"]:hover {
     p {
         font-size: 1.2em; /* 段落を少し小さく */
     }
+    nav ul {
+        flex-direction: column; /* メニューを縦に並べる */
+        align-items: center;
+    }
+
+    nav ul li {
+        margin: 10px 0;
+    }
+
     form {
-        width: 90%; /* フォームを画面幅にフィットさせる */
+        width: 100%; /* フォームが画面幅にフィットするように */
     }
 }
 
+/* ダークモード対応 - オプション */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #333;
+        color: #ccc;
+    }
+
+    nav {
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    nav a {
+        color: #fff;
+    }
+
+    nav a:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    footer {
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .parallax {
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ナビゲーションバーを追加 -->
+    <nav>
+      <ul>
+        <li><a href="index.html">ホーム</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+
+    <h1>Contact Us</h1>
+    <p>お問い合わせはこちらからどうぞ。</p>
+
+    <!-- お問い合わせフォーム -->
+    <div class="contact-form">
+        <h2>お問い合わせフォーム</h2>
+        <form id="contact-form" action="submit_form.php" method="POST">
+            <label for="name">お名前:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">メールアドレス:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="message">メッセージ:</label>
+            <textarea id="message" name="message" required></textarea>
+
+            <button type="submit">送信</button>
+        </form>
+    </div>
+
+    <!-- メッセージを表示する場所 -->
+    <div id="form-message"></div>
+
+    <!-- JavaScript -->
+    <script>
+        document.getElementById("contact-form").addEventListener("submit", function(event) {
+            event.preventDefault(); // フォームのデフォルト送信を防ぐ
+
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const message = document.getElementById("message").value;
+
+            let errorMessage = "";
+
+            // バリデーション
+            if (name.trim() === "") {
+                errorMessage += "名前を入力してください。<br>";
+            }
+
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            if (!email.match(emailPattern)) {
+                errorMessage += "正しいメールアドレスを入力してください。<br>";
+            }
+
+            if (message.trim() === "") {
+                errorMessage += "メッセージを入力してください。<br>";
+            }
+
+            const formMessage = document.getElementById("form-message");
+            if (errorMessage) {
+                formMessage.innerHTML = `<span style="color: red;">${errorMessage}</span>`;
+            } else {
+                // フォーム送信成功時のメッセージ
+                formMessage.innerHTML = "<span style='color: green;'>フォームが正常に送信されました！</span>";
+
+                // フォームをリセット
+                document.getElementById("contact-form").reset();
+            }
+        });
+    </script>
+</body>
+</html>
