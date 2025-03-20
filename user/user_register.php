@@ -1,63 +1,100 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 入力値の取得（XSS対策としてhtmlspecialcharsを使用）
-    $name = htmlspecialchars($_POST['name']);
-    $email = htmlspecialchars($_POST['email']);
-    $password = $_POST['password'];  // パスワードはそのまま取得
+// フォーム送信後の処理
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-    // パスワードのハッシュ化
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    // エラーメッセージ
+    $error_message = '';
 
-    // データベース接続設定
-    $servername = "localhost";
-    $dbUsername = "root";
-    $dbPassword = "";  // MySQLのパスワード
-    $dbname = "contact_form_db";
-
-    // データベースに接続
-    $conn = new mysqli($servername, $dbUsername, $dbPassword, $dbname);
-    if ($conn->connect_error) {
-        die("接続失敗: " . $conn->connect_error);
+    // パスワードが8文字未満の場合
+    if (strlen($password) < 8) {
+        $error_message = 'パスワードは8文字以上で入力してください。';
     }
 
-    // 新しいユーザーを登録するSQL文
-    // ※ messageカラムは空文字にしています（必要に応じて変更してください）
-    $sql = "INSERT INTO users (name, email, password, message) VALUES (?, ?, ?, '')";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $name, $email, $hashed_password);
-
-    if ($stmt->execute()) {
-        echo "ユーザー登録が完了しました。";
-    } else {
-        echo "エラー: " . $stmt->error;
+    // エラーがなければデータベースに登録（仮に処理する部分をここに書く）
+    if (empty($error_message)) {
+        // データベース処理をここで実行（仮の処理）
+        echo 'ユーザー登録が完了しました。';
+        // ここでメール送信処理などを追加
     }
-
-    $stmt->close();
-    $conn->close();
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ユーザー登録</title>
-    <link rel="stylesheet" href="css/style.css"> <!-- CSSファイルへのパスはプロジェクトの構成に合わせる -->
-</head>
-<body>
-    <h2>ユーザー登録</h2>
-    <form method="POST" action="user_register.php">
-        <label for="name">名前:</label>
-        <input type="text" id="name" name="name" required><br>
+<!-- ユーザー登録フォーム -->
+<form method="POST" action="user_register.php">
+    <label for="name">名前:</label>
+    <input type="text" name="name" value="<?php echo isset($name) ? $name : ''; ?>" required><br>
 
-        <label for="email">メールアドレス:</label>
-        <input type="email" id="email" name="email" required><br>
+    <label for="email">メールアドレス:</label>
+    <input type="email" name="email" value="<?php echo isset($email) ? $email : ''; ?>" required><br>
 
-        <label for="password">パスワード:</label>
-        <input type="password" id="password" name="password" required><br>
+    <label for="password">パスワード:</label>
+    <input type="password" name="password" required><br>
 
-        <button type="submit">登録</button>
-    </form>
-</body>
-</html>
+    <?php
+    // エラーメッセージがあれば表示
+    if (!empty($error_message)) {
+        echo '<p style="color:red;">' . $error_message . '</p>';
+    }
+    ?>
+
+    <button type="submit">登録</button>
+</form>
+
+<?php
+// メール送信処理の例 (PHPMailerを使用)
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// ComposerでインストールしたPHPMailerのクラスを読み込む
+require '../vendor/autoload.php';  // PHPMailerのオートロード
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && empty($error_message)) {
+    // PHPMailerオブジェクトのインスタンス作成
+    $mail = new PHPMailer(true);
+
+    try {
+        // サーバー設定
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';  // GmailのSMTPサーバー
+        $mail->SMTPAuth = true;
+        $mail->Username = 'kaihatuakaunnto@gmail.com';  // Gmailアカウント
+        $mail->Password = 'mzfp cack tgvy dilv';  // アプリパスワード
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  // TLS暗号化
+        $mail->Port = 587;
+
+        // デバッグモード設定（ログを出さない）
+        $mail->SMTPDebug = 0;  // 0: ログなし, 1: 簡易ログ, 2: 詳細ログ
+
+        // 文字エンコーディング設定（文字化け防止）
+        $mail->CharSet = 'UTF-8';
+
+        // 送信者設定
+        $senderName = '開発アカウント';  // 送信者名
+        $mail->setFrom('kaihatuakaunnto@gmail.com', $senderName);
+
+        // 受信者設定（フォームから取得）
+        $recipientEmail = $email;  // 登録されたメールアドレス
+        $mail->addAddress($recipientEmail);
+
+        // メール本文の取得 & エンコード対策
+        $message = "名前: $name\n\nパスワードが設定されました。";
+
+        // メール内容設定
+        $mail->isHTML(true);
+        $mail->Subject = 'ユーザー登録完了のお知らせ';
+        $mail->Body    = "<strong>Name:</strong> $name <br><strong>Password:</strong> $password"; // 本文
+        $mail->AltBody = "Name: $name\nPassword: $password"; // テキスト版
+
+        // メール送信
+        if ($mail->send()) {
+            echo '確認メールが送信されました！';
+        }
+    } catch (Exception $e) {
+        echo "メール送信に失敗しました。エラー: " . $mail->ErrorInfo . "<br>";
+        echo "詳細なエラー内容: " . $e->getMessage();
+    }
+}
+?>

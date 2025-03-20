@@ -1,25 +1,32 @@
 <?php
 session_start();
 
+// ログイン試行回数を制限（ブルートフォース対策）
+if (!isset($_SESSION['login_attempts'])) {
+    $_SESSION['login_attempts'] = 0;
+}
+
+if ($_SESSION['login_attempts'] >= 5) {
+    die("試行回数が多すぎます。しばらく待ってから再試行してください。");
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // 入力された値を取得
-    $email = $_POST['email'];
+    // 入力値取得＆サニタイズ
+    $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
     $password = $_POST['password'];
 
-    // データベース接続設定
-    $servername = "localhost";
-    $dbUsername = "root";
-    $dbPassword = "";  // MySQLのパスワード
-    $dbname = "contact_form_db";
+    if (!$email) {
+        die("無効なメールアドレスです。");
+    }
 
-    // データベースに接続
-    $conn = new mysqli($servername, $dbUsername, $dbPassword, $dbname);
+    // データベース接続
+    $conn = new mysqli("localhost", "root", "", "contact_form_db");
     if ($conn->connect_error) {
         die("接続失敗: " . $conn->connect_error);
     }
 
-    // ユーザー情報を取得するクエリ（メールアドレスで検索）
-    $sql = "SELECT * FROM users WHERE email = ? LIMIT 1";
+    // ユーザー情報を取得
+    $sql = "SELECT id, password FROM users WHERE email = ? LIMIT 1";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -27,19 +34,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
-        // ハッシュ化されたパスワードとの照合
+
+        // パスワードの確認
         if (password_verify($password, $user['password'])) {
+            // セッション管理の強化
+            session_regenerate_id(true);
+
             $_SESSION['user_logged_in'] = true;
             $_SESSION['user_id'] = $user['id'];
+            
+            // ログイン試行回数をリセット
+            $_SESSION['login_attempts'] = 0;
+            
             header("Location: user_dashboard.php");
             exit;
         } else {
-            $error = "パスワードが間違っています。";
+            $_SESSION['login_attempts']++;
         }
     } else {
-        $error = "メールアドレスが見つかりません。";
+        $_SESSION['login_attempts']++;
     }
 
+    $error = "ログインに失敗しました。";
+    
     $stmt->close();
     $conn->close();
 }
