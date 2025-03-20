@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タイムラインページ</title>
+    <!-- CSSのパスを修正 -->
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <!-- 修正された部分: 相対パスを "./index.html" に変更 -->
+                <li><a href="./index.html">ホーム</a></li>
+                <li><a href="../text/about.html">About</a></li>
+                <li><a href="../text/contact.html">Contact</a></li>
+                <li><a href="../text/feed.html">タイムライン</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-timeline">
+            <!-- タイムラインアイテム -->
+            <div class="page-timeline-item">
+                <div class="timeline-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="timeline-content">
+                    <h2>2025年3月18日</h2>
+                    <p>プロジェクトの初期設定が完了しました。</p>
+                    <div class="timeline-interaction">
+                        <button class="like-button">
+                            <i class="fas fa-thumbs-up"></i> いいね <span class="like-count">0</span>
+                        </button>
+                        <button class="comment-button">
+                            <i class="fas fa-comment"></i> コメント
+                        </button>
+                    </div>
+                    <div class="comments-section">
+                        <textarea class="comment-input" placeholder="コメントを入力..."></textarea>
+                        <button class="submit-comment">コメントを送信</button>
+                        <div class="comment-list">
+                            <!-- コメントがここに表示される -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 すべての権利を保有</p>
+    </footer>
+
+    <!-- script.jsのパスを修正 -->
+    <script src="../js/script.js"></script>
+</body>
+</html>

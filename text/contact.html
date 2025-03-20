@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- CSSのパスを修正 -->
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <!-- ナビゲーションバーを追加 -->
+    <!-- ナビゲーションバー -->
     <nav>
       <ul>
         <li><a href="index.html">ホーム</a></li>
@@ -23,7 +24,7 @@
     <!-- お問い合わせフォーム -->
     <div class="contact-form">
         <h2>お問い合わせフォーム</h2>
-        <form id="contact-form" action="submit_form.php" method="POST">
+        <form id="contact-form">
             <label for="name">お名前:</label>
             <input type="text" id="name" name="name" required>
 
@@ -45,36 +46,63 @@
         document.getElementById("contact-form").addEventListener("submit", function(event) {
             event.preventDefault(); // フォームのデフォルト送信を防ぐ
 
-            const name = document.getElementById("name").value;
-            const email = document.getElementById("email").value;
-            const message = document.getElementById("message").value;
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const message = document.getElementById("message").value.trim();
 
             let errorMessage = "";
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
-            // バリデーション
-            if (name.trim() === "") {
+            if (name === "") {
                 errorMessage += "名前を入力してください。<br>";
             }
 
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
             if (!email.match(emailPattern)) {
                 errorMessage += "正しいメールアドレスを入力してください。<br>";
             }
 
-            if (message.trim() === "") {
+            if (message === "") {
                 errorMessage += "メッセージを入力してください。<br>";
             }
 
             const formMessage = document.getElementById("form-message");
+            formMessage.innerHTML = ""; // 送信前にメッセージをクリア
+
             if (errorMessage) {
                 formMessage.innerHTML = `<span style="color: red;">${errorMessage}</span>`;
-            } else {
-                // フォーム送信成功時のメッセージ
-                formMessage.innerHTML = "<span style='color: green;'>フォームが正常に送信されました！</span>";
-
-                // フォームをリセット
-                document.getElementById("contact-form").reset();
+                return; // エラーがあれば送信しない
             }
+
+            // フォームデータを作成
+            const formData = new FormData();
+            formData.append("name", name);
+            formData.append("email", email);
+            formData.append("message", message);
+
+            console.log("フォームデータ送信開始...");
+            console.log([...formData.entries()]);
+
+            // fetchで送信
+            fetch("http://localhost/project/submit_form.php", { // 修正: フルURLで指定
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                console.log("レスポンス受信", response);
+                if (!response.ok) {
+                    throw new Error("HTTPエラー: " + response.status);
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log("サーバーからの応答", data);
+                formMessage.innerHTML = `<span style='color: green;'>${data}</span>`;
+                document.getElementById("contact-form").reset(); // フォームリセット
+            })
+            .catch(error => {
+                console.error("送信エラー", error);
+                formMessage.innerHTML = `<span style="color: red;">送信エラー: ${error.message}</span>`;
+            });
         });
     </script>
 </body>

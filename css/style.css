@@ -1,6 +1,6 @@
 /* 背景画像を画面いっぱいに設定 */
 body {
-    background-image: url('image.jpg');
+    background-image: url('../image/image.jpg'); /* 画像が 'image' フォルダにある場合 */
     background-size: cover;  /* 画像が画面全体にフィットするように */
     background-position: top center; /* 画像の中心を上部に寄せる */
     background-attachment: fixed; /* スクロールしても画像が動かない */
@@ -23,7 +23,7 @@ body {
 
 /* パララックス効果を適用したセクション */
 .parallax {
-    background-image: url('your-image.jpg');  /* ここに背景画像を指定 */
+    background-image: url('../image/your-image.jpg');  /* ここに背景画像を指定 */
     background-attachment: fixed; /* スクロール時に背景画像が動かない */
     background-position: center;
     background-repeat: no-repeat;
@@ -38,7 +38,7 @@ body {
 .parallax h1 {
     padding-top: 40vh; /* 見出しを中央寄せ */
     font-size: 3em;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* 文字の読みやすさを向上 */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* より強い文字の影 */
 }
 
 /* ナビゲーションバーのスタイル */
@@ -84,17 +84,19 @@ form {
     margin: 20px 0;
     width: 80%;
     max-width: 500px;  /* フォームの最大幅 */
-    background-color: rgba(255, 255, 255, 0.9); /* 半透明の背景、少し不透明度を高く */
+    background-color: rgba(255, 255, 255, 0.9); /* 半透明の背景 */
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     align-items: center; /* ボタンを中央寄せにする */
+    position: relative; /* タイムラインとの位置関係を調整 */
+    z-index: 10; /* フォームがタイムラインの上に表示されるように */
 }
 
 /* ラベルのスタイル */
 label {
     font-size: 1.2em;
-    margin-bottom: 8px;
+    margin-bottom: 12px; /* 少し余白を追加 */
     color: #333; /* ラベルの文字色を濃くして読みやすく */
 }
 
@@ -202,6 +204,87 @@ input[type="submit"]:hover {
     }
 
     .parallax {
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 0.8); /* より暗い背景 */
     }
+}
+
+/* 追加したいいねボタン・コメントボタン・タイムライン関連 */
+.like-button {
+    background-color: #4CAF50; /* 緑色 */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    display: inline-flex;
+    align-items: center;
+}
+
+.like-button:hover {
+    background-color: #45a049; /* ホバー時に少し暗くなる */
+}
+
+.like-button i {
+    margin-right: 8px; /* アイコンとテキストの間隔 */
+}
+
+.comment-button {
+    background-color: #008CBA; /* 青色 */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    display: inline-flex;
+    align-items: center;
+}
+
+.comment-button:hover {
+    background-color: #007B9F; /* ホバー時に少し暗くなる */
+}
+
+.comment-button i {
+    margin-right: 8px; /* アイコンとテキストの間隔 */
+}
+
+.timeline-item {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: transform 0.3s ease;
+}
+
+.timeline-item:hover {
+    transform: scale(1.05); /* ホバー時に少し大きくなる */
+}
+
+.timeline-item .content {
+    margin-top: 10px;
+    font-size: 1.1em;
+}
+
+.timeline-item .actions {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.timeline-item .actions i {
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.timeline-item .actions i:hover {
+    color: #4CAF50; /* アイコンが緑に変わる */
 }
