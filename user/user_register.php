@@ -1,100 +1,96 @@
 <?php
+require '../db_connect.php'; // データベース接続
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require '../vendor/autoload.php';  // PHPMailerのオートロード
+
 // フォーム送信後の処理
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $password = $_POST['password'];
-
-    // エラーメッセージ
     $error_message = '';
 
-    // パスワードが8文字未満の場合
+    // パスワードのバリデーション（8文字以上）
     if (strlen($password) < 8) {
         $error_message = 'パスワードは8文字以上で入力してください。';
     }
 
-    // エラーがなければデータベースに登録（仮に処理する部分をここに書く）
+    // メールアドレスの重複チェック
     if (empty($error_message)) {
-        // データベース処理をここで実行（仮の処理）
-        echo 'ユーザー登録が完了しました。';
-        // ここでメール送信処理などを追加
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $error_message = 'このメールアドレスは既に登録されています。';
+        }
+        $stmt->close();
+    }
+
+    // ユーザー登録処理
+    if (empty($error_message)) {
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+        $token = bin2hex(random_bytes(16)); // メール認証用トークン
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password, verified, token) VALUES (?, ?, ?, 0, ?)");
+        $stmt->bind_param("ssss", $name, $email, $hashed_password, $token);
+
+        if ($stmt->execute()) {
+            // 確認メール送信
+            $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'kaihatuakaunnto@gmail.com';
+                $mail->Password = 'mzfp cack tgvy dilv'; // 安全のため環境変数を利用
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+                $mail->CharSet = 'UTF-8';
+
+                // 送信者設定
+                $mail->setFrom('kaihatuakaunnto@gmail.com', '開発アカウント');
+                $mail->addAddress($email);
+
+                // メール内容
+                $verification_link = "http://localhost/project/user/verify.php?token=$token";
+                $mail->isHTML(true);
+                $mail->Subject = 'ユーザー登録の確認';
+                $mail->Body = "こんにちは $name さん！<br>以下のリンクをクリックして登録を完了してください。<br><a href='$verification_link'>確認リンク</a>";
+                $mail->AltBody = "以下のURLを開いて登録を完了してください。\n$verification_link";
+
+                $mail->send();
+                echo '仮登録が完了しました！ 確認メールを送信しましたので、メールをご確認ください。';
+            } catch (Exception $e) {
+                echo "メール送信に失敗しました。エラー: " . $mail->ErrorInfo;
+            }
+        } else {
+            echo '登録に失敗しました。';
+        }
+        $stmt->close();
     }
 }
+
+$conn->close();
 ?>
 
 <!-- ユーザー登録フォーム -->
 <form method="POST" action="user_register.php">
     <label for="name">名前:</label>
-    <input type="text" name="name" value="<?php echo isset($name) ? $name : ''; ?>" required><br>
+    <input type="text" name="name" value="<?php echo isset($name) ? htmlspecialchars($name) : ''; ?>" required><br>
 
     <label for="email">メールアドレス:</label>
-    <input type="email" name="email" value="<?php echo isset($email) ? $email : ''; ?>" required><br>
+    <input type="email" name="email" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required><br>
 
     <label for="password">パスワード:</label>
     <input type="password" name="password" required><br>
 
     <?php
-    // エラーメッセージがあれば表示
     if (!empty($error_message)) {
-        echo '<p style="color:red;">' . $error_message . '</p>';
+        echo '<p style="color:red;">' . htmlspecialchars($error_message) . '</p>';
     }
     ?>
 
     <button type="submit">登録</button>
 </form>
-
-<?php
-// メール送信処理の例 (PHPMailerを使用)
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-// ComposerでインストールしたPHPMailerのクラスを読み込む
-require '../vendor/autoload.php';  // PHPMailerのオートロード
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && empty($error_message)) {
-    // PHPMailerオブジェクトのインスタンス作成
-    $mail = new PHPMailer(true);
-
-    try {
-        // サーバー設定
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';  // GmailのSMTPサーバー
-        $mail->SMTPAuth = true;
-        $mail->Username = 'kaihatuakaunnto@gmail.com';  // Gmailアカウント
-        $mail->Password = 'mzfp cack tgvy dilv';  // アプリパスワード
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  // TLS暗号化
-        $mail->Port = 587;
-
-        // デバッグモード設定（ログを出さない）
-        $mail->SMTPDebug = 0;  // 0: ログなし, 1: 簡易ログ, 2: 詳細ログ
-
-        // 文字エンコーディング設定（文字化け防止）
-        $mail->CharSet = 'UTF-8';
-
-        // 送信者設定
-        $senderName = '開発アカウント';  // 送信者名
-        $mail->setFrom('kaihatuakaunnto@gmail.com', $senderName);
-
-        // 受信者設定（フォームから取得）
-        $recipientEmail = $email;  // 登録されたメールアドレス
-        $mail->addAddress($recipientEmail);
-
-        // メール本文の取得 & エンコード対策
-        $message = "名前: $name\n\nパスワードが設定されました。";
-
-        // メール内容設定
-        $mail->isHTML(true);
-        $mail->Subject = 'ユーザー登録完了のお知らせ';
-        $mail->Body    = "<strong>Name:</strong> $name <br><strong>Password:</strong> $password"; // 本文
-        $mail->AltBody = "Name: $name\nPassword: $password"; // テキスト版
-
-        // メール送信
-        if ($mail->send()) {
-            echo '確認メールが送信されました！';
-        }
-    } catch (Exception $e) {
-        echo "メール送信に失敗しました。エラー: " . $mail->ErrorInfo . "<br>";
-        echo "詳細なエラー内容: " . $e->getMessage();
-    }
-}
-?>

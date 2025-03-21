@@ -1,52 +1,42 @@
-<?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-// ComposerでインストールしたPHPMailerのクラスを読み込む
-require '../vendor/autoload.php';  // PHPMailerのオートロード
-
-// PHPMailerオブジェクトのインスタンス作成
 $mail = new PHPMailer(true);
 
 try {
     // サーバー設定
     $mail->isSMTP();
-    $mail->Host = 'smtp.gmail.com';  // GmailのSMTPサーバー
+    $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'kaihatuakaunnto@gmail.com';  // Gmailアカウント
-    $mail->Password = 'mzfp cack tgvy dilv';  // アプリパスワード
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  // TLS暗号化
+    $mail->Username = 'kaihatuakaunnto@gmail.com';
+    $mail->Password = 'mzfp cack tgvy dilv';
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
 
-    // デバッグモード設定（ログを出さない）
-    $mail->SMTPDebug = 0;  // 0: ログなし, 1: 簡易ログ, 2: 詳細ログ
+    // デバッグモードをオフにする（本番環境向け）
+    $mail->SMTPDebug = 0; 
 
-    // 文字エンコーディング設定（文字化け防止）
+    // 文字エンコーディング設定
     $mail->CharSet = 'UTF-8';
 
     // 送信者設定
-    $senderName = '開発アカウント';  // 送信者名
-    $mail->setFrom('kaihatuakaunnto@gmail.com', $senderName);
+    $mail->setFrom('kaihatuakaunnto@gmail.com', '開発アカウント');
 
-    // 受信者設定（フォームから取得）
-    $recipientEmail = isset($_POST['recipient_email']) ? $_POST['recipient_email'] : '';
+    // 受信者設定
+    $recipientEmail = $_POST['recipient_email'] ?? '';
     if (empty($recipientEmail)) {
         throw new Exception('受信者のメールアドレスが指定されていません。');
     }
     $mail->addAddress($recipientEmail);
 
-    // メール本文の取得 & エンコード対策
-    $name = isset($_POST['name']) ? $_POST['name'] : '名無し';
-    $message = isset($_POST['message']) ? $_POST['message'] : 'メッセージがありません。';
+    // メール本文の取得
+    $name = $_POST['name'] ?? '名無し';
+    $message = $_POST['message'] ?? 'メッセージがありません。';
 
-    $name = mb_convert_encoding($name, 'UTF-8', 'auto');
-    $message = mb_convert_encoding($message, 'UTF-8', 'auto');
+    // 件名
+    $mail->Subject = 'パスワードリセットリンク';
 
-    // メール内容設定
+    // メール内容（HTML）
     $mail->isHTML(true);
-    $mail->Subject = mb_encode_mimeheader('テストメール', 'UTF-8');
-    $mail->Body    = "<strong>Name:</strong> $name <br><strong>Message:</strong> $message";
-    $mail->AltBody = "Name: $name\nMessage: $message";
+    $mail->Body    = "<strong>名前:</strong> $name <br><strong>メッセージ:</strong> $message";
+    $mail->AltBody = "名前: $name\nメッセージ: $message";
 
     // メール送信
     if ($mail->send()) {
@@ -56,4 +46,3 @@ try {
     echo "メール送信に失敗しました。エラー: " . $mail->ErrorInfo . "<br>";
     echo "詳細なエラー内容: " . $e->getMessage();
 }
-?>
